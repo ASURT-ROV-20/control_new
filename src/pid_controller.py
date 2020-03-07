@@ -51,8 +51,8 @@ class PID:
         # self.int_error = 0.0
 
     def update(self, setpoint, state):
-        if ~self.enable :
-            return 0
+#        if ~self.enable :
+#            return 0
         self.error = setpoint - state
         self.current_time = time.time()
         delta_time = self.current_time - self.last_time
@@ -71,7 +71,7 @@ class PID:
 
             self.last_time = self.current_time
             self.last_error = self.error
-
+            print("error", self.error,"Kp", self.kp, "P", self.pterm, "ki", self.ki,  "I", self.ki * self.iterm,"Kd", self.kd , "D", self.dterm * self.kd)
             self.output = self.pterm + self.ki * self.iterm + self.dterm * self.kd
 
             if self.output > self.upper_limit:

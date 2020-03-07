@@ -25,26 +25,28 @@ control_effort_pub = rospy.Publisher("control_effort",Float64, queue_size=5)
 setpoint_pub = rospy.Publisher("setpoint",Float64, queue_size=5)
 state_pub = rospy.Publisher("state",Float64, queue_size=5)
 
-pid_depth = pid_controller.PID(kp = 50, ki = 0, kd = 0,
-                             wind_up = 20, upper_limit = 130, lower_limit = -100)
+pid_depth = pid_controller.PID(kp = 1000, ki = 1000, kd = 800,
+                             wind_up = 20, upper_limit = 100, lower_limit = -100)
 
 setpoint = 0
 state = 0
 pid_depth.enable = True
 
 def run():
+    global setpoint
     while not rospy.is_shutdown():
         sensor.read()
-        state = sensor.depth()
+        state = sensor.depth() -0.35
         pwm = pid_depth.update(setpoint = setpoint, state = state)
+        pwm = -pwm
         pwm += offset 
-        hat.set_pwm(12, 0, pwm)
-        hat.set_pwm(13, 0, pwm)
-        print(pwm)
+        hat.set_pwm(12, 0, int(pwm))
+        hat.set_pwm(13, 0, int(pwm))
+#        print(pwm)
 
         state_pub.publish(state)
         setpoint_pub.publish(setpoint)
-        control_effort_pub.publish(pwm)
+        control_effort_pub.publish(int(pwm))
         time.sleep(0.09)
 
 main_fn = threading.Thread(target=run)
